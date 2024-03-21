@@ -1,0 +1,32 @@
+import pandas as pd
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+
+def analyze_sentiment(text):
+    sid = SentimentIntensityAnalyzer()
+    sentiment_scores = sid.polarity_scores(text)
+    if sentiment_scores['compound'] >= 0.05:
+        return 'Positive'
+    elif sentiment_scores['compound'] <= -0.05:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+if __name__ == "__main__":
+    nltk.download('vader_lexicon')
+
+    # Load the CSV file with feedback data into a DataFrame
+    input_file = 'customer_feedback.csv' 
+    df = pd.read_csv(input_file)
+
+    # Drop rows with empty values in the 'Feedback' column
+    df.dropna(subset=['Feedback'], inplace=True)
+
+    # Add a new column 'Sentiment' to store the sentiment analysis result
+    df['Sentiment'] = df['Feedback'].apply(analyze_sentiment)
+
+    # Save the DataFrame back to a new CSV file with the sentiment analysis results
+    output_file = 'customer_feedback_with_sentiment.csv'  # Replace with your desired output file name
+    df.to_csv(output_file, index=False)
+
+    print(f"Sentiment analysis completed, empty rows removed, and results saved to '{output_file}'.")
